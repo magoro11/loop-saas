@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+enum Channel {
+  EMAIL
+  WEB
+  APPSTORE
+  NPS
+  SOCIAL
+  CALL
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+enum Status {
+  NEW
+  REVIEWED
+  ACTIONED
+}
+
+model Workspace {
+  id        String     @id @default(cuid())
+  name      String
+  createdAt DateTime   @default(now())
+
+  users      User[]
+  feedbacks  Feedback[]
+  themes     Theme[]
+  reports    Report[]
+  embeddings Embedding[]
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  passwordHash   String?
+  role           Role      @default(VIEWER)
+  workspaceId    String
+  workspace      Workspace @relation(fields: [workspaceId], references: [id])
+  createdAt      DateTime  @default(now())
+
+  accounts        Account[]
+  sessions        Session[]
+  generatedReports Report[] @relation("generatedBy")
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? // eslint-disable-line camelcase
+  access_token       String? // eslint-disable-line camelcase
+  expires_at         Int?    // eslint-disable-line camelcase
+  token_type         String? // eslint-disable-line camelcase
+  scope              String?
+  id_token           String? // eslint-disable-line camelcase
+  session_state      String? // eslint-disable-line camelcase
+  oauth_token_secret String? // eslint-disable-line camelcase
+  oauth_token        String? // eslint-disable-line camelcase
+  userId             String
+  user               User    @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Feedback {
+  id             String    @id @default(cuid())
+  content        String
+  channel        Channel
+  sourceRef      String?
+  customerLabel  String?
+  sentiment      Sentiment?
+  sentimentScore Float?
+  status         Status    @default(NEW)
+  createdAt      DateTime  @default(now())
+  workspaceId    String
+  workspace      Workspace @relation(fields: [workspaceId], references: [id])
+
+  themes         FeedbackTheme[]
+  embedding      Embedding?
+
+  @@index([workspaceId])
+  @@index([createdAt])
+}
+
+model Theme {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  color       String?
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  feedbacks   FeedbackTheme[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+}
+
+model FeedbackTheme {
+  id         String   @id @default(cuid())
+  feedbackId String
+  themeId    String
+  confidence Float
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id])
+  theme    Theme    @relation(fields: [themeId], references: [id])
+
+  @@unique([feedbackId, themeId])
+}
+
+model Embedding {
+  id         String   @id @default(cuid())
+  feedbackId String   @unique
+  vector     Float[]
+  workspaceId String
+
+  feedback  Feedback @relation(fields: [feedbackId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+}
+
+model Report {
+  id           String   @id @default(cuid())
+  title        String
+  periodStart  DateTime
+  periodEnd    DateTime
+  contentJson  Json
+  workspaceId  String
+  generatedById String?
+
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  generatedBy  User?     @relation("generatedBy", fields: [generatedById], references: [id])
+
+  createdAt    DateTime @default(now())
+
+  @@index([workspaceId])
+}
