@@ -29,19 +29,29 @@ export default function LoginPage() {
       <h1 className="text-3xl font-semibold">Sign in to LOOP</h1>
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            Email
+          </label>
           <input
+            id="email"
+            name="email"
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
             type="email"
+            placeholder="you@example.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Password</label>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            Password
+          </label>
           <input
+            id="password"
+            name="password"
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
             type="password"
+            placeholder="Enter your password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />

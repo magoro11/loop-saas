@@ -8,5 +8,11 @@ body,
 }
 
 body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-[#f5f7fb] text-slate-900 antialiased;
+    background-image: radial-gradient(circle at top left, rgba(15, 23, 42, 0.04), transparent 26%), linear-gradient(180deg, #f8fafc 0%, #f5f7fb 100%);
+}
+
+::selection {
+    background-color: rgba(15, 23, 42, 0.16);
+    color: #0f172a;
 }

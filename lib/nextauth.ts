@@ -1,13 +1,12 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
-import type { NextAuthOptions } from "next-auth"
 import { prisma } from "./prisma"
 import { verifyPassword } from "./auth"
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "database",
+    strategy: "database" as const,
   },
   providers: [
     CredentialsProvider({
@@ -39,7 +38,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
+    async session({ session, user }: { session: any; user: any }) {
       if (session.user) {
         session.user.id = user.id
         session.user.role = user.role
