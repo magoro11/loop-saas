@@ -18,21 +18,25 @@ export default function SignupPage() {
     setError(null)
     setLoading(true)
 
-    const response = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, workspaceName }),
-    })
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, workspaceName }),
+      })
 
-    setLoading(false)
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null)
+        setError(payload?.error || "Unable to create account.")
+        return
+      }
 
-    if (!response.ok) {
-      const payload = await response.json().catch(() => null)
-      setError(payload?.error || "Unable to create account.")
-      return
+      router.push("/login?signup=success")
+    } catch {
+      setError("Unable to connect to the server. Please restart the development server and try again.")
+    } finally {
+      setLoading(false)
     }
-
-    router.push("/login?signup=success")
   }
 
   return (
