@@ -216,7 +216,9 @@ export default async function Page() {
         </header>
 
         <main>
-          <section className="relative overflow-hidden bg-[#0c0e1c] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+          <section className="relative overflow-hidden bg-[#0B1014] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+            <div className="pointer-events-none absolute -left-32 top-20 h-96 w-96 rounded-full bg-teal-500/20 blur-3xl" />
+            <div className="pointer-events-none absolute right-0 top-0 h-[32rem] w-[32rem] rounded-full bg-emerald-500/15 blur-3xl" />
             <img
               src="https://cdn.prod.website-files.com/69e6b779dbc68d6b76294ae1/69e737afdcf9789de39561db_top-bg.webp"
               alt=""
@@ -251,6 +253,23 @@ export default async function Page() {
                   </Link>
                 </div>
               </div>
+            </div>
+            <div className="relative z-10 mx-auto mt-20 max-w-6xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-teal-950/40 backdrop-blur-xl sm:p-8">
+              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(148,163,184,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.15) 1px, transparent 1px)", backgroundSize: "42px 42px" }} />
+              <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1000 360" fill="none" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M150 250 C300 80 360 100 500 180 S740 80 860 130" stroke="#67E8F9" strokeOpacity=".55" strokeWidth="1.5" />
+                <path d="M120 120 C300 260 420 260 500 180 S700 220 900 270" stroke="white" strokeOpacity=".25" strokeWidth="1" />
+                <path d="M500 180 C520 100 590 65 700 80" stroke="#14B8A6" strokeOpacity=".5" strokeWidth="1.5" />
+              </svg>
+              <div className="relative grid min-h-[310px] grid-cols-2 items-center gap-6 sm:grid-cols-4">
+                {["Signals", "Intelligence", "Context", "Outcomes"].map((node, index) => (
+                  <div key={node} className={`group flex flex-col items-center ${index % 2 ? "sm:translate-y-12" : "sm:-translate-y-8"}`}>
+                    <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-cyan-200/50 bg-[#0B1014]/80 shadow-[0_0_35px_rgba(20,184,166,.45)]"><span className="h-3 w-3 rounded-full bg-cyan-200 shadow-[0_0_18px_#67E8F9]" /><span className="absolute inset-2 rounded-full border border-teal-300/20" /></div>
+                    <span className="mt-4 text-sm font-medium text-white">{node}</span><span className="mt-1 text-[10px] uppercase tracking-[0.2em] text-slate-500">AI layer 0{index + 1}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="relative mt-2 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur-md"><p className="text-[10px] uppercase tracking-widest text-slate-400">AI insight</p><p className="mt-2 text-sm text-white">Onboarding friction is rising for high-value accounts.</p></div><div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur-md"><p className="text-[10px] uppercase tracking-widest text-slate-400">Sentiment</p><p className="mt-2 text-2xl font-semibold text-emerald-300">+18.4%</p></div><div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur-md"><p className="text-[10px] uppercase tracking-widest text-slate-400">Workflow agent</p><p className="mt-2 text-sm text-white">3 actions completed <span className="text-emerald-300">●</span></p></div></div>
             </div>
             <div className="relative z-10 mt-16 flex flex-wrap justify-center gap-6 opacity-60 sm:gap-10">
               {customerLogos.map((logo) => (
