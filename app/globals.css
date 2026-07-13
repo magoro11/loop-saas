@@ -20,6 +20,16 @@ body {
     display: none;
 }
 
+/* Keep all shared Tailwind surfaces inside the futuristic dark system. */
+.bg-white {
+    background-color: rgba(255, 255, 255, 0.045) !important;
+}
+
+.bg-slate-50,
+.bg-gray-50 {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
 ::selection {
     background-color: rgba(15, 23, 42, 0.16);
     color: #0f172a;
