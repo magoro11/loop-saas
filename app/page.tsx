@@ -308,6 +308,42 @@ export default async function Page() {
             </div>
           </section>
 
+          <section id="intelligence" className="bg-[#f5f2ea] px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+            <div className="mx-auto max-w-7xl">
+              <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+                <div className="max-w-2xl">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">One customer intelligence layer</p>
+                  <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl">See the signal. Prove the impact.</h2>
+                  <p className="mt-5 text-lg leading-8 text-slate-600">Connect every conversation to the outcomes your teams care about — then turn insight into action with AI workflows.</p>
+                </div>
+                <Link href="/signup" className="inline-flex h-fit rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Explore intelligence</Link>
+              </div>
+              <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+                {[
+                  { label: "Customer intelligence", metric: "82%", detail: "retention confidence", color: "bg-emerald-400", bars: [35, 52, 44, 68, 58, 82] },
+                  { label: "Support intelligence", metric: "−31%", detail: "repeat contact rate", color: "bg-sky-400", bars: [76, 64, 69, 52, 44, 31] },
+                  { label: "Sales intelligence", metric: "$2.4M", detail: "revenue at risk found", color: "bg-violet-400", bars: [28, 42, 38, 57, 63, 78] },
+                  { label: "Market intelligence", metric: "+24%", detail: "share of voice", color: "bg-orange-400", bars: [32, 36, 49, 45, 61, 74] },
+                ].map((card) => (
+                  <div key={card.label} className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_12px_40px_rgba(15,23,42,0.06)]">
+                    <div className="flex items-center justify-between"><span className="text-sm font-semibold text-slate-700">{card.label}</span><span className={`h-2.5 w-2.5 rounded-full ${card.color}`} /></div>
+                    <p className="mt-7 text-3xl font-semibold tracking-tight text-slate-950">{card.metric}</p>
+                    <p className="mt-1 text-sm text-slate-500">{card.detail}</p>
+                    <div className="mt-7 flex h-16 items-end gap-2">{card.bars.map((height, index) => <span key={index} className={`flex-1 rounded-t-md ${card.color} opacity-${index + 3}`} style={{ height: `${height}%` }} />)}</div>
+                    <div className="mt-3 flex justify-between text-[10px] uppercase tracking-widest text-slate-400"><span>Jan</span><span>Jun</span></div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
+                <div className="rounded-[1.75rem] bg-slate-950 p-7 text-white sm:p-9">
+                  <div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Build AI workflows & agents</p><h3 className="mt-3 text-2xl font-semibold">From insight to action, automatically.</h3></div><span className="rounded-full border border-white/15 px-3 py-1 text-xs text-slate-300">Live workflow</span></div>
+                  <div className="mt-8 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl bg-white/10 p-4"><span className="text-xs text-slate-400">Trigger</span><p className="mt-2 text-sm font-medium">Churn risk detected</p></div><div className="rounded-2xl bg-emerald-400/20 p-4"><span className="text-xs text-emerald-200">AI agent</span><p className="mt-2 text-sm font-medium">Drafts a response</p></div><div className="rounded-2xl bg-white/10 p-4"><span className="text-xs text-slate-400">Action</span><p className="mt-2 text-sm font-medium">Creates a Jira ticket</p></div></div>
+                </div>
+                <div className="rounded-[1.75rem] border border-slate-200 bg-white p-7"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Connected context</p><p className="mt-4 text-4xl font-semibold tracking-tight text-slate-950">220M+</p><p className="mt-2 text-sm leading-6 text-slate-600">signals ready for your teams, copilots, and agents.</p><div className="mt-6 flex -space-x-2"><span className="h-9 w-9 rounded-full border-2 border-white bg-emerald-300" /><span className="h-9 w-9 rounded-full border-2 border-white bg-sky-300" /><span className="h-9 w-9 rounded-full border-2 border-white bg-violet-300" /><span className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-slate-900 text-xs text-white">+8</span></div></div>
+              </div>
+            </div>
+          </section>
+
           <section id="pillars" className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
             <div className="mx-auto max-w-7xl">
               <div className="text-center">
