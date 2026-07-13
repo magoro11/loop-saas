@@ -26,7 +26,7 @@ export async function GET() {
         },
       },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { name: "asc" },
   })
 
   return NextResponse.json({ themes })

@@ -8,7 +8,7 @@ body,
 }
 
 body {
-    @apply bg-green-100 text-gray-900;
+    @apply bg-[#f5f2ea] text-gray-900;
 }
 
 .hero-bg-top {
