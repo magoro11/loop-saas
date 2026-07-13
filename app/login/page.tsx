@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -26,16 +27,25 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto max-w-md py-16">
-      <h1 className="text-3xl font-semibold">Sign in to LOOP</h1>
+      <div className="text-center">
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Sign in to LOOP</h1>
+        <p className="mt-2 text-sm text-slate-600">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="font-semibold text-slate-900 underline underline-offset-4">
+            Create workspace
+          </Link>
+        </p>
+      </div>
+
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-sm font-medium text-slate-700">
             Email
           </label>
           <input
             id="email"
             name="email"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
             type="email"
             placeholder="you@example.com"
             value={email}
@@ -43,13 +53,13 @@ export default function LoginPage() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="block text-sm font-medium text-slate-700">
             Password
           </label>
           <input
             id="password"
             name="password"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
             type="password"
             placeholder="Enter your password"
             value={password}
@@ -59,7 +69,7 @@ export default function LoginPage() {
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <button
           type="submit"
-          className="w-full rounded-md bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          className="w-full rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
         >
           Sign in
         </button>

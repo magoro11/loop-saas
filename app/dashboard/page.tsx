@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation"
+import Link from "next/link"
 import { getServerSession } from "next-auth/next"
 import type { Session } from "next-auth"
 import { authOptions } from "../../lib/nextauth"
-import Link from "next/link"
 import { prisma } from "../../lib/prisma"
 
 export default async function DashboardPage() {
@@ -11,11 +11,40 @@ export default async function DashboardPage() {
     redirect("/login")
   }
 
-  const [feedbackCount, themeCount, reportCount] = await Promise.all([
-    prisma.feedback.count({ where: { workspaceId: session.user.workspaceId } }),
-    prisma.theme.count({ where: { workspaceId: session.user.workspaceId } }),
-    prisma.report.count({ where: { workspaceId: session.user.workspaceId } }),
-  ])
+  const [feedbackCount, themeCount, reportCount, recentFeedbacks, channelStats, statusStats, topThemes] =
+    await Promise.all([
+      prisma.feedback.count({ where: { workspaceId: session.user.workspaceId } }),
+      prisma.theme.count({ where: { workspaceId: session.user.workspaceId } }),
+      prisma.report.count({ where: { workspaceId: session.user.workspaceId } }),
+      prisma.feedback.findMany({
+        where: { workspaceId: session.user.workspaceId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: { id: true, content: true, channel: true, status: true, createdAt: true },
+      }),
+      prisma.feedback.groupBy({
+        by: ["channel"],
+        where: { workspaceId: session.user.workspaceId },
+        _count: { channel: true },
+      }),
+      prisma.feedback.groupBy({
+        by: ["status"],
+        where: { workspaceId: session.user.workspaceId },
+        _count: { status: true },
+      }),
+      prisma.theme.findMany({
+        where: { workspaceId: session.user.workspaceId },
+        include: {
+          _count: {
+            select: { feedbacks: true },
+          },
+        },
+        orderBy: { feedbacks: { _count: "desc" } },
+        take: 5,
+      }),
+    ])
+
+  const maxChannelCount = Math.max(...channelStats.map((c) => c._count.channel), 1)
 
   return (
     <div className="space-y-8">
@@ -90,42 +119,86 @@ export default async function DashboardPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-slate-900">Signal snapshot</h2>
-                <p className="mt-2 text-sm text-slate-500">See which themes are gaining traction and which opportunities deserve the next move.</p>
+                <p className="mt-2 text-sm text-slate-500">See which channels are generating the most feedback and what themes are emerging.</p>
               </div>
-              <div className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">+14% this week</div>
             </div>
 
-            <div className="mt-6 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
               <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
-                <div className="flex h-36 items-end gap-3">
-                  {["78%", "62%", "84%", "58%"].map((height, index) => (
-                    <div key={height} className="flex flex-1 flex-col items-center justify-end gap-2">
-                      <div className="w-full rounded-t-[0.9rem] bg-gradient-to-t from-slate-900 via-slate-700 to-slate-400" style={{ height }} />
-                      <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">{["Onboarding", "Reliability", "Billing", "Integrations"][index]}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 flex items-center justify-between text-sm text-slate-500">
-                  <span>Weekly momentum</span>
-                  <span>6 themes flagged</span>
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Feedback by channel</p>
+                <div className="mt-4 flex items-end gap-3">
+                  {channelStats.length === 0 ? (
+                    <p className="text-sm text-slate-400">No data yet.</p>
+                  ) : (
+                    channelStats.map((item) => (
+                      <div key={item.channel} className="flex flex-1 flex-col items-center justify-end gap-2">
+                        <div
+                          className="w-full rounded-t-[0.9rem] bg-gradient-to-t from-slate-900 via-slate-700 to-slate-400"
+                          style={{ height: `${(item._count.channel / maxChannelCount) * 100}%`, minHeight: "8px" }}
+                        />
+                        <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500">{item.channel}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
               <div className="space-y-3">
-                {[
-                  { title: "Billing friction", detail: "Customers need clearer invoices and upgrading paths.", tag: "High impact" },
-                  { title: "Setup confusion", detail: "New users are stalling in the first product experience.", tag: "Needs action" },
-                  { title: "Reliability concerns", detail: "Support volume is rising around failed workflows.", tag: "Watchlist" },
-                ].map((item) => (
-                  <div key={item.title} className="rounded-[1.25rem] border border-slate-200 bg-white p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <h3 className="text-sm font-semibold text-slate-900">{item.title}</h3>
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">{item.tag}</span>
-                    </div>
-                    <p className="mt-2 text-sm text-slate-600">{item.detail}</p>
-                  </div>
-                ))}
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Top themes</p>
+                {topThemes.length === 0 ? (
+                  <p className="text-sm text-slate-400">No themes yet. Create your first theme to see it here.</p>
+                ) : (
+                  topThemes.map((theme) => (
+                    <Link
+                      key={theme.id}
+                      href={`/dashboard/themes`}
+                      className="flex items-center justify-between gap-3 rounded-[1.25rem] border border-slate-200 bg-white p-4 transition hover:border-slate-300"
+                    >
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-900">{theme.name}</h3>
+                        <p className="mt-0.5 text-xs text-slate-500">{theme._count.feedbacks} feedback item{theme._count.feedbacks === 1 ? "" : "s"}</p>
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">
+                        {theme._count.feedbacks}
+                      </span>
+                    </Link>
+                  ))
+                )}
               </div>
+            </div>
+          </div>
+
+          <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">Recent feedback</h2>
+                <p className="mt-2 text-sm text-slate-500">The latest signals from your workspace.</p>
+              </div>
+              <Link href="/dashboard/feedback" className="text-sm font-semibold text-slate-900 transition hover:text-slate-700">
+                View all
+              </Link>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              {recentFeedbacks.length === 0 ? (
+                <p className="text-sm text-slate-400">No feedback yet.</p>
+              ) : (
+                recentFeedbacks.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/dashboard/feedback`}
+                    className="flex items-start justify-between gap-4 rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4 transition hover:border-slate-300"
+                  >
+                    <div>
+                      <span className="inline-flex rounded-full bg-slate-200 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-700">
+                        {item.channel}
+                      </span>
+                      <p className="mt-2 text-sm text-slate-700 line-clamp-2">{item.content}</p>
+                    </div>
+                    <span className="text-xs text-slate-400">{new Date(item.createdAt).toLocaleDateString()}</span>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </div>

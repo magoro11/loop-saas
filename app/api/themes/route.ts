@@ -1,0 +1,57 @@
+import { NextResponse } from "next/server"
+import { prisma } from "../../../lib/prisma"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "../../../lib/nextauth"
+import type { Session } from "next-auth"
+import { z } from "zod"
+
+const themeSchema = z.object({
+  name: z.string().min(2, "Theme name must be at least 2 characters"),
+  description: z.string().optional(),
+  color: z.string().optional(),
+})
+
+export async function GET() {
+  const session = (await getServerSession(authOptions)) as Session | null
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const themes = await prisma.theme.findMany({
+    where: { workspaceId: session.user.workspaceId },
+    include: {
+      feedbacks: {
+        include: {
+          feedback: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  })
+
+  return NextResponse.json({ themes })
+}
+
+export async function POST(request: Request) {
+  const session = (await getServerSession(authOptions)) as Session | null
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const body = await request.json()
+  const parsed = themeSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.format() }, { status: 400 })
+  }
+
+  const theme = await prisma.theme.create({
+    data: {
+      name: parsed.data.name,
+      description: parsed.data.description,
+      color: parsed.data.color,
+      workspaceId: session.user.workspaceId,
+    },
+  })
+
+  return NextResponse.json(theme, { status: 201 })
+}

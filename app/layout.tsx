@@ -8,7 +8,7 @@ import SignOutButton from "./_components/SignOutButton"
 
 export const metadata = {
   title: 'LOOP — Customer Feedback Intelligence',
-  description: 'LOOP placeholder app'
+  description: 'Classify, cluster, and retrieve grounded answers from customer feedback.'
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -34,8 +34,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <SignOutButton />
                 </div>
               ) : (
-                <Link href="/login" className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
-                  Sign in
+                <Link href="/signup" className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
+                  Get started
                 </Link>
               )}
             </div>
