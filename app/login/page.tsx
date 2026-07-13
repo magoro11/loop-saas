@@ -26,7 +26,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md py-16">
+    <div className="mx-auto max-w-md px-4 py-16">
       <div className="text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Sign in to LOOP</h1>
         <p className="mt-2 text-sm text-slate-600">
@@ -37,7 +37,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+      <form className="mt-8 space-y-6 rounded-3xl border border-white/10 bg-white/[0.06] p-8 shadow-2xl shadow-teal-950/30 backdrop-blur-xl" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-700">
             Email
@@ -45,7 +45,7 @@ export default function LoginPage() {
           <input
             id="email"
             name="email"
-            className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+            className="mt-1 block w-full rounded-xl border border-white/15 bg-[#0B1014]/80 px-3 py-3 text-sm text-white placeholder:text-slate-500 shadow-inner transition focus:border-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-400/20"
             type="email"
             placeholder="you@example.com"
             value={email}
@@ -59,7 +59,7 @@ export default function LoginPage() {
           <input
             id="password"
             name="password"
-            className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+            className="mt-1 block w-full rounded-xl border border-white/15 bg-[#0B1014]/80 px-3 py-3 text-sm text-white placeholder:text-slate-500 shadow-inner transition focus:border-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-400/20"
             type="password"
             placeholder="Enter your password"
             value={password}
