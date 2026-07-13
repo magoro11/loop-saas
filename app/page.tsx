@@ -184,7 +184,7 @@ export default async function Page() {
 
   if (!session?.user) {
     return (
-      <div className="min-h-screen bg-[#f5f2ea]">
+      <div className="min-h-screen bg-[#0B1014]">
         <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <Link href="/" className="text-xl font-bold tracking-tight text-slate-900">
@@ -327,7 +327,7 @@ export default async function Page() {
             </div>
           </section>
 
-          <section id="intelligence" className="bg-[#f5f2ea] px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <section id="intelligence" className="bg-[#0B1014] px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
             <div className="mx-auto max-w-7xl">
               <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
                 <div className="max-w-2xl">
@@ -556,7 +556,7 @@ export default async function Page() {
   ])
 
   return (
-    <div className="min-h-screen bg-[#f5f2ea]">
+    <div className="min-h-screen bg-[#0B1014]">
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="text-xl font-bold tracking-tight text-slate-900">
