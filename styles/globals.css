@@ -8,18 +8,19 @@ body,
 }
 
 body {
-    @apply bg-[#f5f2ea] text-gray-900;
+    @apply text-green-900;
+    background-color: #267A45;
 }
 
 .hero-bg-top {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  inset: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
 }
 
 .hero-bg-stars {
-  width: 100%;
-  position: relative;
-  top: 25%;
+    width: 100%;
+    position: relative;
+    top: 25%;
 }
