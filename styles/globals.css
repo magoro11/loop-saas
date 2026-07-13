@@ -8,8 +8,8 @@ body,
 }
 
 body {
-    @apply text-green-900;
-    background-color: #267A45;
+    @apply text-gray-900;
+    background-color: #f5f2ea;
 }
 
 .hero-bg-top {
