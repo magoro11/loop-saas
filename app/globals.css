@@ -12,6 +12,12 @@ body {
     background-color: #f5f2ea;
 }
 
+/* The hero uses the CSS neural network visualization; hide legacy image layers. */
+.hero-bg-top,
+.hero-bg-stars {
+    display: none;
+}
+
 ::selection {
     background-color: rgba(15, 23, 42, 0.16);
     color: #0f172a;
