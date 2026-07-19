@@ -10,6 +10,8 @@ type Channel = (typeof channels)[number]
 export default function NewFeedbackForm() {
   const [content, setContent] = useState("")
   const [channel, setChannel] = useState<Channel>("WEB")
+  const [sourceRef, setSourceRef] = useState("")
+  const [customerLabel, setCustomerLabel] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -28,21 +30,31 @@ export default function NewFeedbackForm() {
 
     setLoading(true)
 
-    const response = await fetch("/api/feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: trimmedContent, channel }),
-    })
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: trimmedContent, channel, sourceRef: sourceRef || undefined, customerLabel: customerLabel || undefined }),
+      })
 
-    setLoading(false)
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null)
+        setError(payload?.error?.message || payload?.error || "Unable to create feedback.")
+        setLoading(false)
+        return
+      }
 
-    if (!response.ok) {
-      const payload = await response.json().catch(() => null)
-      setError(payload?.error?.message || "Unable to create feedback.")
-      return
+      const result = await response.json()
+
+      if (result.id) {
+        fetch(`/api/feedback/${result.id}/classify`, { method: "POST" }).catch(() => {})
+      }
+
+      router.push("/dashboard/feedback")
+    } catch {
+      setError("Something went wrong.")
+      setLoading(false)
     }
-
-    router.push("/dashboard/feedback")
   }
 
   return (
@@ -84,6 +96,29 @@ export default function NewFeedbackForm() {
               {option}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="block text-sm font-medium text-slate-700">Source reference (optional)</label>
+          <input
+            type="text"
+            value={sourceRef}
+            onChange={(e) => setSourceRef(e.target.value)}
+            placeholder="e.g. ticket-123"
+            className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700">Customer label (optional)</label>
+          <input
+            type="text"
+            value={customerLabel}
+            onChange={(e) => setCustomerLabel(e.target.value)}
+            placeholder="e.g. Enterprise Plan"
+            className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+          />
         </div>
       </div>
 

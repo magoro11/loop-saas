@@ -20,6 +20,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link href="/dashboard/themes" className="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
               Themes
             </Link>
+            <Link href="/dashboard/themes/trends" className="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
+              Theme trends
+            </Link>
+            <Link href="/dashboard/analytics" className="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
+              Analytics
+            </Link>
+            <Link href="/dashboard/ask-loop" className="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
+              Ask LOOP
+            </Link>
             <Link href="/dashboard/reports" className="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
               Reports
             </Link>

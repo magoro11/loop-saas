@@ -6,7 +6,7 @@ import { verifyPassword } from "./auth"
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "database" as const,
+    strategy: "jwt" as const,
   },
   providers: [
     CredentialsProvider({
@@ -38,11 +38,19 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, user }: { session: any; user: any }) {
+    async jwt({ token, user }: { token: any; user: any }) {
+      if (user) {
+        token.id = user.id
+        token.role = user.role
+        token.workspaceId = user.workspaceId
+      }
+      return token
+    },
+    async session({ session, token }: { session: any; token: any }) {
       if (session.user) {
-        session.user.id = user.id
-        session.user.role = user.role
-        session.user.workspaceId = user.workspaceId
+        session.user.id = token.id
+        session.user.role = token.role
+        session.user.workspaceId = token.workspaceId
       }
       return session
     },

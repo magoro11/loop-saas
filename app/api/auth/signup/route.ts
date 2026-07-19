@@ -4,6 +4,7 @@ import { prisma } from "../../../../lib/prisma"
 import { hashPassword } from "../../../../lib/auth"
 import { authOptions } from "../../../../lib/nextauth"
 import { getServerSession } from "next-auth/next"
+import { Role } from "@prisma/client"
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
             email,
             name,
             passwordHash,
-            role: "ADMIN",
+            role: Role.ADMIN,
           },
         },
       },

@@ -9,39 +9,27 @@ interface Report {
   title: string
   periodStart: string
   periodEnd: string
-  contentJson: Record<string, unknown>
+  contentJson: string
   createdAt: string
   generatedBy: { name: string | null; email: string } | null
-}
-
-interface Feedback {
-  id: string
-  content: string
-  channel: string
-  status: string
-  createdAt: string
-  themes: { theme: { id: string; name: string } }[]
 }
 
 export default function ReportsPage() {
   const router = useRouter()
   const [reports, setReports] = useState<Report[]>([])
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [title, setTitle] = useState("")
   const [periodStart, setPeriodStart] = useState("")
   const [periodEnd, setPeriodEnd] = useState("")
+  const [generateAI, setGenerateAI] = useState(true)
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/reports").then((r) => r.json()),
-      fetch("/api/feedback?limit=50").then((r) => r.json()),
-    ])
-      .then(([reportsData, feedbackData]) => {
-        setReports(reportsData.reports || [])
-        setFeedbacks(feedbackData.feedbacks || [])
+    fetch("/api/reports")
+      .then((r) => r.json())
+      .then((data) => {
+        setReports(data.reports || [])
         setLoading(false)
       })
       .catch(() => {
@@ -55,64 +43,44 @@ export default function ReportsPage() {
     setError(null)
     setCreating(true)
 
-    const topThemes = feedbacks
-      .flatMap((f) => f.themes.map((t) => t.theme.name))
-      .reduce((acc, name) => {
-        acc[name] = (acc[name] || 0) + 1
-        return acc
-      }, {} as Record<string, number>)
+    try {
+      const res = await fetch("/api/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title || `Signal report ${new Date().toLocaleDateString()}`,
+          periodStart: periodStart || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          periodEnd: periodEnd || new Date().toISOString(),
+          generateAI,
+        }),
+      })
 
-    const themeBreakdown = Object.entries(topThemes)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5)
-      .map(([name, count]) => ({ name, count }))
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null)
+        setError(payload?.error || "Failed to create report.")
+        setCreating(false)
+        return
+      }
 
-    const channelBreakdown = feedbacks.reduce((acc, f) => {
-      acc[f.channel] = (acc[f.channel] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
-
-    const statusBreakdown = feedbacks.reduce((acc, f) => {
-      acc[f.status] = (acc[f.status] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
-
-    const response = await fetch("/api/reports", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: title || `Signal report ${new Date().toLocaleDateString()}`,
-        periodStart: periodStart || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        periodEnd: periodEnd || new Date().toISOString(),
-        contentJson: {
-          totalFeedback: feedbacks.length,
-          topThemes: themeBreakdown,
-          channelBreakdown,
-          statusBreakdown,
-          recentFeedback: feedbacks.slice(0, 5).map((f) => ({
-            id: f.id,
-            content: f.content.slice(0, 120),
-            channel: f.channel,
-            status: f.status,
-          })),
-        },
-      }),
-    })
-
-    setCreating(false)
-
-    if (!response.ok) {
-      const payload = await response.json().catch(() => null)
-      setError(payload?.error || "Failed to create report.")
-      return
+      const report = await res.json()
+      setReports([report, ...reports])
+      setTitle("")
+      setPeriodStart("")
+      setPeriodEnd("")
+      router.refresh()
+    } catch {
+      setError("Failed to create report.")
+    } finally {
+      setCreating(false)
     }
+  }
 
-    const report = await response.json()
-    setReports([report, ...reports])
-    setTitle("")
-    setPeriodStart("")
-    setPeriodEnd("")
-    router.refresh()
+  function getContentJson(report: Report) {
+    try {
+      return JSON.parse(report.contentJson)
+    } catch {
+      return {}
+    }
   }
 
   if (loading) {
@@ -130,7 +98,7 @@ export default function ReportsPage() {
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Analyst reports</p>
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-slate-900">Decision-ready summaries</h1>
-            <p className="mt-4 max-w-2xl text-slate-600">Turn structured feedback into concise insight packs for product, support, and leadership teams.</p>
+            <p className="mt-4 max-w-2xl text-slate-600">Generate AI-powered Voice of Customer reports from your workspace data.</p>
           </div>
           <Link href="/dashboard/feedback" className="inline-flex items-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">
             Go to feedback inbox
@@ -188,6 +156,18 @@ export default function ReportsPage() {
                   />
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <input
+                  id="generateAI"
+                  type="checkbox"
+                  checked={generateAI}
+                  onChange={(e) => setGenerateAI(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-slate-900 focus:ring-slate-900"
+                />
+                <label htmlFor="generateAI" className="text-sm text-slate-700">
+                  Generate AI narrative
+                </label>
+              </div>
             </div>
 
             <button
@@ -211,61 +191,71 @@ export default function ReportsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {reports.map((report) => (
-                <div key={report.id} className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900">{report.title}</h3>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {new Date(report.periodStart).toLocaleDateString()} — {new Date(report.periodEnd).toLocaleDateString()}
-                      </p>
-                      {report.generatedBy && (
-                        <p className="mt-1 text-xs text-slate-400">By {report.generatedBy.name || report.generatedBy.email}</p>
-                      )}
-                    </div>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
-                      {new Date(report.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Total feedback</p>
-                      <p className="mt-2 text-2xl font-semibold text-slate-900">
-                        {(report.contentJson as any)?.totalFeedback || 0}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Top themes</p>
-                      <div className="mt-2 space-y-1">
-                        {(report.contentJson as any)?.topThemes?.slice(0, 3).map((t: any) => (
-                          <div key={t.name} className="flex items-center justify-between text-sm">
-                            <span className="text-slate-700">{t.name}</span>
-                            <span className="text-slate-500">{t.count}</span>
-                          </div>
-                        )) || <p className="text-sm text-slate-400">No themes yet</p>}
+              {reports.map((report) => {
+                const content = getContentJson(report)
+                return (
+                  <div key={report.id} className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-900">{report.title}</h3>
+                        <p className="mt-1 text-sm text-slate-500">
+                          {new Date(report.periodStart).toLocaleDateString()} — {new Date(report.periodEnd).toLocaleDateString()}
+                        </p>
+                        {report.generatedBy && (
+                          <p className="mt-1 text-xs text-slate-400">By {report.generatedBy.name || report.generatedBy.email}</p>
+                        )}
                       </div>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                        {new Date(report.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
-                  </div>
 
-                  {(report.contentJson as any)?.recentFeedback?.length > 0 && (
-                    <div className="mt-4">
-                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Recent signals</p>
-                      <div className="mt-2 space-y-2">
-                        {(report.contentJson as any)?.recentFeedback?.slice(0, 3).map((f: any) => (
-                          <div key={f.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
-                            <p className="text-sm text-slate-700 line-clamp-2">{f.content}</p>
-                            <div className="mt-1 flex items-center gap-2 text-xs text-slate-400">
-                              <span>{f.channel}</span>
-                              <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] uppercase tracking-wider">{f.status}</span>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                      <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                        <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Total feedback</p>
+                        <p className="mt-2 text-2xl font-semibold text-slate-900">
+                          {content.totalFeedback || 0}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                        <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Top themes</p>
+                        <div className="mt-2 space-y-1">
+                          {(content.topThemes as any[])?.slice(0, 3).map((t: any) => (
+                            <div key={t.name} className="flex items-center justify-between text-sm">
+                              <span className="text-slate-700">{t.name}</span>
+                              <span className="text-slate-500">{t.count}</span>
                             </div>
-                          </div>
-                        ))}
+                          )) || <p className="text-sm text-slate-400">No themes yet</p>}
+                        </div>
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {content.narrative && (
+                      <div className="mt-4 rounded-xl border border-slate-100 bg-white p-4">
+                        <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Narrative</p>
+                        <p className="mt-2 text-sm leading-7 text-slate-700 whitespace-pre-wrap">{content.narrative}</p>
+                      </div>
+                    )}
+
+                    {(content.recentFeedback as any[])?.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Recent signals</p>
+                        <div className="mt-2 space-y-2">
+                          {(content.recentFeedback as any[]).slice(0, 3).map((f: any) => (
+                            <div key={f.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                              <p className="text-sm text-slate-700 line-clamp-2">{f.content}</p>
+                              <div className="mt-1 flex items-center gap-2 text-xs text-slate-400">
+                                <span>{f.channel}</span>
+                                <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] uppercase tracking-wider">{f.status}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

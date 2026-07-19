@@ -1,28 +1,45 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 
-export default function LoginPage() {
+function LoginForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(searchParams.get("signup") === "success")
+
+  useEffect(() => {
+    if (searchParams.get("signup") === "success") {
+      setSuccess(true)
+    }
+  }, [searchParams])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const result = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
-    })
-    if (result?.error) {
-      setError("Invalid email or password.")
-      return
+    setError(null)
+    setLoading(true)
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      })
+      if (result?.error) {
+        setError("Invalid email or password.")
+        return
+      }
+      router.push("/dashboard")
+    } catch (err) {
+      setError("Something went wrong. Please try again.")
+    } finally {
+      setLoading(false)
     }
-    router.push("/dashboard")
   }
 
   return (
@@ -36,6 +53,12 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+
+      {success && (
+        <div className="mt-4 rounded-xl border border-green-100 bg-green-50 p-4 text-sm text-green-700">
+          Workspace created successfully! You can now sign in.
+        </div>
+      )}
 
       <form className="mt-8 space-y-6 rounded-3xl border border-white/10 bg-white/[0.06] p-8 shadow-2xl shadow-teal-950/30 backdrop-blur-xl" onSubmit={handleSubmit}>
         <div>
@@ -69,11 +92,20 @@ export default function LoginPage() {
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <button
           type="submit"
-          className="w-full rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+          disabled={loading}
+          className="w-full rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Sign in
+          {loading ? "Signing in..." : "Sign in"}
         </button>
       </form>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-md px-4 py-16"><p>Loading...</p></div>}>
+      <LoginForm />
+    </Suspense>
   )
 }
