@@ -187,17 +187,26 @@ export default async function Page() {
     return <LandingPage />
   }
 
-  const [feedbackCount, themeCount, reportCount, recentFeedback] = await Promise.all([
-    prisma.feedback.count({ where: { workspaceId: session.user.workspaceId } }),
-    prisma.theme.count({ where: { workspaceId: session.user.workspaceId } }),
-    prisma.report.count({ where: { workspaceId: session.user.workspaceId } }),
-    prisma.feedback.findMany({
-      where: { workspaceId: session.user.workspaceId },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      select: { id: true, content: true, channel: true, createdAt: true, status: true },
-    }),
-  ])
+  let feedbackCount = 0
+  let themeCount = 0
+  let reportCount = 0
+  let recentFeedback: any[] = []
+
+  try {
+    [feedbackCount, themeCount, reportCount, recentFeedback] = await Promise.all([
+      prisma.feedback.count({ where: { workspaceId: session.user.workspaceId } }),
+      prisma.theme.count({ where: { workspaceId: session.user.workspaceId } }),
+      prisma.report.count({ where: { workspaceId: session.user.workspaceId } }),
+      prisma.feedback.findMany({
+        where: { workspaceId: session.user.workspaceId },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        select: { id: true, content: true, channel: true, createdAt: true, status: true },
+      }),
+    ])
+  } catch (error) {
+    console.error("Failed to load workspace stats:", error)
+  }
 
   return (
     <div className="min-h-screen bg-[#0B1014]">

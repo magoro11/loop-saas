@@ -9,4 +9,6 @@ coverage
 .vscode
 prisma/dev.db
 prisma/dev.db-journal
+prisma/prisma/dev.db
+cookies.txt
 .kilo

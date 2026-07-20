@@ -1,4 +1,5 @@
 import Link from "next/link"
+import SignOutButton from "../_components/SignOutButton"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -33,6 +34,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               Reports
             </Link>
           </nav>
+
+          <SignOutButton />
         </aside>
 
         <div>{children}</div>

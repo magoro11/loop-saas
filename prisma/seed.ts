@@ -137,7 +137,7 @@ function pick<T>(rng: () => number, arr: readonly T[]): T {
 function buildEmbedding(feedbackId: string): number[] {
   const rng = makeRng(hashString(feedbackId))
   const vec: number[] = []
-  for (let i = 0; i < 384; i++) {
+  for (let i = 0; i < 1536; i++) {
     vec.push(Number((rng() * 2 - 1).toFixed(5)))
   }
   return vec

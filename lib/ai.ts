@@ -73,42 +73,50 @@ Return ONLY valid JSON, no markdown, no explanation.`
 }
 
 export async function generateEmbedding(text: string): Promise<number[]> {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return deterministicEmbedding(text)
+  const apiKey = process.env.OPENAI_API_KEY || process.env.EMBEDDING_API_KEY
+  if (!apiKey) {
+    return fallbackEmbedding(text)
   }
 
   try {
-    const message = await anthropic.messages.create({
-      model: "claude-3-5-haiku-20241022",
-      max_tokens: 100,
-      messages: [
-        {
-          role: "user",
-          content: `Generate a 384-dimensional embedding vector for this text. Return ONLY a JSON array of 384 numbers between -1 and 1, no explanation: """${text}"""`,
-        },
-      ],
+    const res = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "text-embedding-3-small",
+        input: text,
+      }),
     })
 
-    const raw = message.content[0].type === "text" ? message.content[0].text : "[]"
-    const cleaned = raw.replace(/```json/g, "").replace(/```/g, "").trim()
-    const parsed = JSON.parse(cleaned) as number[]
-    if (!Array.isArray(parsed) || parsed.length !== 384) {
-      return deterministicEmbedding(text)
+    if (!res.ok) {
+      const err = await res.text()
+      console.error("Embedding API error:", res.status, err)
+      return fallbackEmbedding(text)
     }
-    return parsed.map((n) => Math.max(-1, Math.min(1, Number(n) || 0)))
-  } catch {
-    return deterministicEmbedding(text)
+
+    const data = await res.json()
+    const vector = data?.data?.[0]?.embedding as number[] | undefined
+    if (!Array.isArray(vector) || vector.length === 0) {
+      return fallbackEmbedding(text)
+    }
+    return vector
+  } catch (error) {
+    console.error("Embedding generation failed:", error)
+    return fallbackEmbedding(text)
   }
 }
 
-function deterministicEmbedding(text: string): number[] {
+function fallbackEmbedding(text: string): number[] {
   const vec: number[] = []
   let hash = 0
   for (let i = 0; i < text.length; i++) {
     hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0
   }
   let seed = Math.abs(hash) || 1
-  for (let i = 0; i < 384; i++) {
+  for (let i = 0; i < 1536; i++) {
     seed = (seed * 16807 + 0) % 2147483647
     vec.push((seed / 2147483647) * 2 - 1)
   }

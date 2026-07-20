@@ -83,6 +83,10 @@ export default function ReportsPage() {
     }
   }
 
+  function handlePrint() {
+    window.print()
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -100,9 +104,17 @@ export default function ReportsPage() {
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-slate-900">Decision-ready summaries</h1>
             <p className="mt-4 max-w-2xl text-slate-600">Generate AI-powered Voice of Customer reports from your workspace data.</p>
           </div>
-          <Link href="/dashboard/feedback" className="inline-flex items-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">
-            Go to feedback inbox
-          </Link>
+          <div className="flex gap-3">
+            <button
+              onClick={handlePrint}
+              className="no-print inline-flex items-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+            >
+              Print / Save PDF
+            </button>
+            <Link href="/dashboard/feedback" className="inline-flex items-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">
+              Go to feedback inbox
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -112,7 +124,7 @@ export default function ReportsPage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1">
-          <form onSubmit={handleCreateReport} className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <form onSubmit={handleCreateReport} className="no-print rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">Generate report</h2>
             <p className="mt-1 text-sm text-slate-500">Create a structured snapshot of your workspace feedback.</p>
 
@@ -194,7 +206,7 @@ export default function ReportsPage() {
               {reports.map((report) => {
                 const content = getContentJson(report)
                 return (
-                  <div key={report.id} className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+                  <div key={report.id} className="print-container rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <h3 className="text-lg font-semibold text-slate-900">{report.title}</h3>

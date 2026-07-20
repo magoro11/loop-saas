@@ -11,38 +11,50 @@ export default async function DashboardPage() {
     redirect("/login")
   }
 
-  const [feedbackCount, themeCount, reportCount, recentFeedbacks, channelStats, statusStats, topThemes] =
-    await Promise.all([
-      prisma.feedback.count({ where: { workspaceId: session.user.workspaceId } }),
-      prisma.theme.count({ where: { workspaceId: session.user.workspaceId } }),
-      prisma.report.count({ where: { workspaceId: session.user.workspaceId } }),
-      prisma.feedback.findMany({
-        where: { workspaceId: session.user.workspaceId },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        select: { id: true, content: true, channel: true, status: true, createdAt: true },
-      }),
-      prisma.feedback.groupBy({
-        by: ["channel"],
-        where: { workspaceId: session.user.workspaceId },
-        _count: { channel: true },
-      }),
-      prisma.feedback.groupBy({
-        by: ["status"],
-        where: { workspaceId: session.user.workspaceId },
-        _count: { status: true },
-      }),
-      prisma.theme.findMany({
-        where: { workspaceId: session.user.workspaceId },
-        include: {
-          _count: {
-            select: { feedbacks: true },
+  let feedbackCount = 0
+  let themeCount = 0
+  let reportCount = 0
+  let recentFeedbacks: any[] = []
+  let channelStats: any[] = []
+  let statusStats: any[] = []
+  let topThemes: any[] = []
+
+  try {
+    [feedbackCount, themeCount, reportCount, recentFeedbacks, channelStats, statusStats, topThemes] =
+      await Promise.all([
+        prisma.feedback.count({ where: { workspaceId: session.user.workspaceId } }),
+        prisma.theme.count({ where: { workspaceId: session.user.workspaceId } }),
+        prisma.report.count({ where: { workspaceId: session.user.workspaceId } }),
+        prisma.feedback.findMany({
+          where: { workspaceId: session.user.workspaceId },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: { id: true, content: true, channel: true, status: true, createdAt: true },
+        }),
+        prisma.feedback.groupBy({
+          by: ["channel"],
+          where: { workspaceId: session.user.workspaceId },
+          _count: { channel: true },
+        }),
+        prisma.feedback.groupBy({
+          by: ["status"],
+          where: { workspaceId: session.user.workspaceId },
+          _count: { status: true },
+        }),
+        prisma.theme.findMany({
+          where: { workspaceId: session.user.workspaceId },
+          include: {
+            _count: {
+              select: { feedbacks: true },
+            },
           },
-        },
-        orderBy: { feedbacks: { _count: "desc" } },
-        take: 5,
-      }),
-    ])
+          orderBy: { feedbacks: { _count: "desc" } },
+          take: 5,
+        }),
+      ])
+  } catch (error) {
+    console.error("Failed to load dashboard stats:", error)
+  }
 
   const maxChannelCount = Math.max(...channelStats.map((c) => c._count.channel), 1)
 
