@@ -1,185 +1,182 @@
-# LOOP — Customer Feedback Intelligence
+# LOOP — AI Customer-Feedback Intelligence Platform
 
-![Next.js](https://img.shields.io/badge/Next.js-16-black)
-![Prisma](https://img.shields.io/badge/Prisma-5-2D3748)
-![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3FCF8E)
-![Anthropic](https://img.shields.io/badge/Anthropic-Claude%203.5-D4A574)
+LOOP is a multi-tenant web application that turns scattered customer feedback — support tickets, app-store reviews, NPS surveys, sales notes, and social mentions — into ranked, evidence-backed insight. It automatically classifies and clusters incoming feedback, detects trending themes, answers plain-English questions grounded in real feedback data, and generates Voice-of-Customer reports.
 
-LOOP is a multi-tenant Voice of Customer (VoC) platform that collects, classifies, and surfaces customer feedback using AI. It provides semantic Q&A (Ask LOOP), automated sentiment/theming, and printable analyst reports.
+Built for the Zidio Development Web Development Track internship.
 
-## Screenshots
+**Live demo:** https://loop-saas-omega.vercel.app
+**Repository:** https://github.com/magoro11/loop-saas
 
-> Replace the placeholders below with actual screenshots of your deployed app.
+---
 
-### Dashboard
-![Dashboard](./docs/screenshots/dashboard.png)
+## Table of Contents
 
-### Feedback Inbox
-![Feedback Inbox](./docs/screenshots/feedback-inbox.png)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [Database & Seed Data](#database--seed-data)
+- [Demo Credentials](#demo-credentials)
+- [Project Structure](#project-structure)
+- [Known Limitations](#known-limitations)
 
-### Ask LOOP
-![Ask LOOP](./docs/screenshots/ask-loop.png)
+---
 
-### Reports
-![Reports](./docs/screenshots/reports.png)
+## Features
+
+### Core
+- **Multi-tenant workspaces** with three roles: Admin, Analyst, Viewer, enforced server-side.
+- **Feedback ingestion** via single-entry form, CSV bulk upload, and a simulated channel source.
+- **Feedback inbox** with full-text search, filters (channel, sentiment, theme, status, date range), and server-side pagination.
+- **Status workflow**: NEW → REVIEWED → ACTIONED.
+- **Analytics dashboard**: volume over time, sentiment breakdown, top themes, and channel distribution (Recharts).
+
+### AI (powered by the Anthropic Claude API)
+- **Auto-classification** — every feedback item is tagged with sentiment, sentiment score, theme(s), and a feature-area label on ingest.
+- **Theme clustering & trends** — feedback is grouped into named themes, with a trends view that flags themes spiking versus the prior period.
+- **Ask LOOP** — a natural-language Q&A assistant that retrieves the most relevant feedback before answering, and cites the feedback items it used.
+- **Voice-of-Customer reports** — one-click, period-based reports combining pre-computed statistics with an AI-written narrative.
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js (App Router) + TypeScript |
+| Styling | Tailwind CSS, Framer Motion |
+| Database | PostgreSQL (Supabase) |
+| ORM | Prisma |
+| Auth | NextAuth (Auth.js) + Prisma adapter, bcrypt |
+| AI | Anthropic Claude API (`claude-3-5-haiku-20241022`) |
+| Charts | Recharts |
+| Validation | Zod |
+| Deployment | Vercel |
 
 ## Architecture
 
+LOOP follows a three-tier architecture. The browser only ever calls the app's own API routes; those routes are the sole layer permitted to talk to PostgreSQL and to the Claude API, so credentials never reach the client.
+
 ```
-┌─────────────┐     ┌─────────────┐     ┌──────────────────┐
-│   Browser    │────▶│  Next.js    │────▶│  Prisma Client   │
-│  (React/TS)  │◀────│  App Router │◀────│  (PostgreSQL)    │
-└─────────────┘     └──────┬──────┘     └──────────────────┘
-                           │
-              ┌────────────┼────────────┐
-              │            │            │
-        ┌─────▼─────┐ ┌───▼────┐ ┌────▼──────────┐
-        │ NextAuth  │ │Anthropic│ │ OpenAI        │
-        │ (JWT)     │ │ Claude  │ │ Embeddings    │
-        └───────────┘ └────────┘ └───────────────┘
+Client (Next.js pages/components)
+        │
+        ▼
+API routes (app/api/*)
+  — session + role checks
+  — Zod validation
+  — workspace-scoped queries
+        │
+        ▼
+Prisma ──► PostgreSQL
+        │
+        ▼
+lib/ai.ts ──► Anthropic Claude API
 ```
 
-### Data flow
-1. **Ingest** — Feedback is submitted via the API or CSV import. Each item is scoped to a `workspaceId`.
-2. **Classify** — A background job calls Anthropic to assign sentiment, themes, and feature area.
-3. **Embed** — Real OpenAI `text-embedding-3-small` vectors are stored for semantic search.
-4. **Ask LOOP** — Questions are embedded, cosine-similarity-ranked against workspace embeddings, then answered by Claude with citations.
-5. **Report** — Aggregated stats + AI narrative are saved as JSON and can be printed to PDF.
+Every tenant-owned table (`Feedback`, `Theme`, `Report`, etc.) carries a `workspaceId` foreign key, and every query in the API layer filters on the authenticated user's `workspaceId`, so one workspace can never read another's data.
 
-## Prerequisites
+## Getting Started
 
-- Node.js >= 18
-- npm or pnpm
-- A Supabase project (PostgreSQL database)
-- An Anthropic API key
-- An OpenAI API key (for real embeddings)
+### Prerequisites
+- Node.js 18+
+- A PostgreSQL database (a free [Supabase](https://supabase.com) project works well)
+- An [Anthropic API key](https://console.anthropic.com)
 
-## Local Setup
-
-1. Clone the repository:
+### Local setup
 
 ```bash
-git clone https://github.com/your-org/loop.git
-cd loop
-```
-
-2. Install dependencies:
-
-```bash
+# 1. Clone and install
+git clone https://github.com/magoro11/loop-saas.git
+cd loop-saas
 npm install
-```
 
-3. Copy `.env.example` to `.env.local` and fill in values:
-
-```bash
+# 2. Configure environment variables
 cp .env.example .env.local
-```
+# then fill in DATABASE_URL, NEXTAUTH_SECRET, ANTHROPIC_API_KEY (see below)
 
-4. Apply the database schema:
-
-```bash
-npx prisma migrate dev --name init
+# 3. Set up the database
 npx prisma generate
-```
-
-5. Seed demo data:
-
-```bash
-npm run postinstall
-# or explicitly:
+npx prisma migrate dev --name init
 npx prisma db seed
-```
 
-6. Start the dev server:
-
-```bash
+# 4. Run locally
 npm run dev
+# App runs at http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+### Deploying to Vercel
+1. Push the repository to GitHub.
+2. Import the project into Vercel.
+3. Add the environment variables below in the Vercel project settings.
+4. Deploy using the default Next.js build command (`npm run build`).
 
 ## Environment Variables
 
-| Variable | Description | Required |
+Copy `.env.example` to `.env.local` and set:
+
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | PostgreSQL connection string (Supabase: Settings → Database). Use the pooled port (6543) for serverless/Vercel. |
+| `NEXTAUTH_SECRET` | A random secret used to sign session tokens. Generate with `openssl rand -base64 32`. |
+| `NEXTAUTH_URL` | The app's base URL (`http://localhost:3000` locally, your Vercel URL in production). |
+| `ANTHROPIC_API_KEY` | Your Anthropic API key, used server-side only for all AI features. |
+| `EMBEDDING_API_KEY` | Optional — reserved for a dedicated embeddings provider (see [Known Limitations](#known-limitations)). |
+
+**Never commit `.env` or `.env.local` to version control.**
+
+## Database & Seed Data
+
+The schema (`prisma/schema.prisma`) defines `Workspace`, `User`, `Feedback`, `Theme`, `FeedbackTheme`, `Embedding`, and `Report` models, plus the `Account`/`Session`/`VerificationToken` tables required by NextAuth.
+
+Running `npx prisma db seed` populates:
+- 1 demo workspace
+- 3 users, one per role (see [Demo Credentials](#demo-credentials))
+- 130 realistic feedback items across 6 channels (support, app store, NPS, sales calls, social, email)
+- 10 themes with feedback already clustered and classified
+
+## Demo Credentials
+
+The live deployment and local seed both use the same demo workspace:
+
+| Role | Email | Password |
 |---|---|---|
-| `DATABASE_URL` | Supabase Postgres connection string | Yes |
-| `NEXTAUTH_SECRET` | Random string for JWT signing | Yes |
-| `NEXTAUTH_URL` | App URL (e.g. `http://localhost:3000`) | Yes |
-| `ANTHROPIC_API_KEY` | Anthropic Claude API key | Yes |
-| `OPENAI_API_KEY` | OpenAI API key for `text-embedding-3-small` | Recommended |
-| `EMBEDDING_API_KEY` | Alias for `OPENAI_API_KEY` | Optional |
+| Admin | `admin@demo.com` | `Admin123!` |
+| Analyst | `analyst@demo.com` | `Admin123!` |
+| Viewer | `viewer@demo.com` | `Admin123!` |
 
-> **Security note:** `.env.local` and `.env` are gitignored. Never commit secrets.
+> These are demo-only credentials for a seeded, non-production workspace. Do not reuse this password anywhere else.
 
-## Seed / Demo Credentials
-
-After running `npx prisma db seed`, you can log in with:
-
-| Email | Password | Role |
-|---|---|---|
-| `admin@demo.com` | `Admin123!` | ADMIN |
-| `analyst@demo.com` | `Admin123!` | ANALYST |
-| `viewer@demo.com` | `Admin123!` | VIEWER |
-
-All demo users belong to **Workspace: Acme Corp**.
-
-## Cross-Tenant Access Test
-
-We verified that tenant isolation is enforced at the query level.
-
-### Manual browser test
-1. Log in as `admin@demo.com` (Workspace A).
-2. Open DevTools → Network tab.
-3. Call `/api/feedback` and note the IDs returned.
-4. Log out, then log in as a user from a different workspace.
-5. Call `/api/feedback` again — you should see a different set of IDs. No feedback from the first workspace is visible.
-
-### Automated script result
-
-```bash
-npm run test:cross-tenant
-```
+## Project Structure
 
 ```
-Cross-tenant isolation test
-
-Workspace A ID: cmrtm8glr0000mq36l3ypy9ff
-Workspace B ID: cmrtm8h520001mq36509881ro
-
-Querying feedback where workspaceId = B:
-  Found 1 item(s)
-Querying reports where workspaceId = B:
-  Found 1 item(s)
-
-Result: PASS — tenant isolation enforced at query level.
+loop-saas/
+  app/
+    (auth)/login, signup
+    dashboard/            # inbox, analytics, themes/trends, ask-loop, reports
+    api/
+      auth/               # NextAuth + signup
+      feedback/           # CRUD, CSV import, seed, status, classify
+      themes/             # theme list + trends
+      ask-loop/           # grounded Q&A
+      reports/            # Voice-of-Customer report generation
+  lib/
+    ai.ts                 # all Claude API calls (classify, embed, answer, report)
+    auth.ts / nextauth.ts # session + role guards
+    tenant.ts             # workspace-scoped query helpers
+    prisma.ts             # Prisma client singleton
+  prisma/
+    schema.prisma
+    seed.ts
+  middleware.ts           # redirects unauthenticated requests
 ```
 
-## PDF / Print Export
+## Known Limitations
 
-Reports can be exported to PDF using the browser's native print dialog:
+Documented transparently as scope for future iteration:
 
-1. Navigate to **Reports**.
-2. Click **Print / Save PDF** in the top-right corner.
-3. In the print dialog, choose **Save as PDF** as the destination.
-4. Adjust margins to *Default* or *None* for best results.
+- **Embeddings**: `generateEmbedding()` currently asks the Claude chat model to return a 384-number JSON array (with a deterministic fallback if that fails), rather than using a dedicated embeddings model or `pgvector`. This is sufficient for demo purposes but is less semantically reliable than a purpose-built embeddings endpoint.
+- **Report export**: Voice-of-Customer reports are viewable as an in-app page but are not yet exportable to PDF.
+- **Model choice**: AI features currently use `claude-3-5-haiku-20241022` for cost/latency efficiency; a larger model can be swapped in via `lib/ai.ts` where higher accuracy is preferred over speed.
 
-A dedicated `@media print` stylesheet hides navigation, forms, and buttons while preserving report content, stats, and narratives.
+---
 
-## Security & Secrets Audit
-
-- `.env`, `.env.local`, `cookies.txt`, and `prisma/dev.db*` are gitignored.
-- No secrets were found in Git history (`git log --all --full-history -- .env .env.local` returned no results).
-- The stray `prisma/prisma/dev.db` (798 KB SQLite file) was removed from the repository index and deleted from disk.
-- All API routes filter by `workspaceId` from the authenticated session. No tenant ID is accepted from client input.
-
-## Migrations
-
-To create a new migration:
-
-```bash
-npx prisma migrate dev --name your_migration_name
-```
-
-## License
-
-MIT
+Built by [Brighton Magoro](https://github.com/magoro11) for the Zidio Development internship program.
