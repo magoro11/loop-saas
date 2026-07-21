@@ -68,7 +68,7 @@ export default function NewFeedbackForm() {
           <p className="text-sm text-slate-500">{content.length} characters</p>
         </div>
         <textarea
-          className="min-h-[180px] w-full rounded-3xl border border-slate-300 bg-slate-50 p-4 text-sm shadow-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-100"
+          className="min-h-[180px] w-full rounded-3xl border border-slate-300 bg-slate-50 p-4 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-100"
           rows={7}
           value={content}
           onChange={(event) => setContent(event.target.value)}
@@ -107,7 +107,7 @@ export default function NewFeedbackForm() {
             value={sourceRef}
             onChange={(e) => setSourceRef(e.target.value)}
             placeholder="e.g. ticket-123"
-            className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+            className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
           />
         </div>
         <div>
@@ -117,7 +117,7 @@ export default function NewFeedbackForm() {
             value={customerLabel}
             onChange={(e) => setCustomerLabel(e.target.value)}
             placeholder="e.g. Enterprise Plan"
-            className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+            className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
           />
         </div>
       </div>
