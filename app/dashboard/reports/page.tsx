@@ -135,7 +135,7 @@ export default function ReportsPage() {
                 </label>
                 <input
                   id="title"
-                  className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                  className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
                   type="text"
                   placeholder="Weekly signal report"
                   value={title}
@@ -150,7 +150,7 @@ export default function ReportsPage() {
                   <input
                     id="periodStart"
                     type="date"
-                    className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                    className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
                     value={periodStart}
                     onChange={(e) => setPeriodStart(e.target.value)}
                   />
@@ -162,7 +162,7 @@ export default function ReportsPage() {
                   <input
                     id="periodEnd"
                     type="date"
-                    className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                    className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
                     value={periodEnd}
                     onChange={(e) => setPeriodEnd(e.target.value)}
                   />

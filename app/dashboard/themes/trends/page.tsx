@@ -49,7 +49,7 @@ export default function ThemeTrendsPage() {
                 type="number"
                 value={periodDays}
                 onChange={(e) => setPeriodDays(Number(e.target.value))}
-                className="mt-1 block w-24 rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm"
+                className="mt-1 block w-24 rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm"
               />
             </div>
             <div>
@@ -58,7 +58,7 @@ export default function ThemeTrendsPage() {
                 type="number"
                 value={previousDays}
                 onChange={(e) => setPreviousDays(Number(e.target.value))}
-                className="mt-1 block w-24 rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm"
+                className="mt-1 block w-24 rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm"
               />
             </div>
           </div>

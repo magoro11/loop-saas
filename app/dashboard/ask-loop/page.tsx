@@ -73,7 +73,7 @@ export default function AskLoopPage() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="e.g., What are users saying about onboarding?"
-            className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+            className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
           />
           <button
             type="submit"

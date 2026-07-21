@@ -149,7 +149,7 @@ export default function FeedbackPage() {
               value={q}
               onChange={(e) => { setQ(e.target.value); setOffset(0) }}
               placeholder="Search feedback content..."
-              className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+              className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
             />
           </div>
           <div>
@@ -157,7 +157,7 @@ export default function FeedbackPage() {
             <select
               value={channel}
               onChange={(e) => { setChannel(e.target.value); setOffset(0) }}
-              className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+              className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
             >
               <option value="">All</option>
               <option value="EMAIL">Email</option>
@@ -173,7 +173,7 @@ export default function FeedbackPage() {
             <select
               value={sentiment}
               onChange={(e) => { setSentiment(e.target.value); setOffset(0) }}
-              className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+              className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
             >
               <option value="">All</option>
               <option value="POSITIVE">Positive</option>
@@ -186,7 +186,7 @@ export default function FeedbackPage() {
             <select
               value={status}
               onChange={(e) => { setStatus(e.target.value); setOffset(0) }}
-              className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+              className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
             >
               <option value="">All</option>
               <option value="NEW">New</option>
@@ -199,7 +199,7 @@ export default function FeedbackPage() {
             <select
               value={themeId}
               onChange={(e) => { setThemeId(e.target.value); setOffset(0) }}
-              className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+              className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
             >
               <option value="">All</option>
               {themes.map((t) => (

@@ -146,7 +146,7 @@ export default function ThemesPage() {
                 </label>
                 <input
                   id="name"
-                  className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                  className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
                   type="text"
                   placeholder="e.g. Billing friction"
                   value={name}
@@ -160,7 +160,7 @@ export default function ThemesPage() {
                 </label>
                 <textarea
                   id="description"
-                  className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                  className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
                   rows={3}
                   placeholder="Why this theme matters..."
                   value={description}
@@ -225,7 +225,7 @@ export default function ThemesPage() {
                       Assign feedback
                     </label>
                     <select
-                      className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                      className="mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-100"
                       value=""
                       onChange={(e) => {
                         if (e.target.value) {
