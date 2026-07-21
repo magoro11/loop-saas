@@ -11,10 +11,11 @@ export default async function NewFeedbackPage() {
   }
 
   return (
-    <div className="py-16">
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold">Create feedback</h1>
-        <p className="mt-2 text-sm text-slate-600">Add a new customer feedback item to your workspace.</p>
+    <div className="space-y-8">
+      <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Feedback inbox</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-slate-900">Create feedback</h1>
+        <p className="mt-4 max-w-2xl text-slate-600">Add a new customer feedback item to your workspace.</p>
       </div>
       <NewFeedbackForm />
     </div>
